@@ -115,7 +115,7 @@ of metaphor as guiding principles \cite{Gallese2005}.
 \subsection{Previous work on metaphors in politics}
 \label{sub:Previous-work-on-metaphors-in-politics}
 
-Looking at \cite{Matlock2012,Matlock2013, Lakoff2008, Lakoff2012}, and probably others.
+Looking at \cite{Matlock2012, Matlock2013, Lakoff2008, Lakoff2012}, and probably others.
 
 
 \subsection{The use of metaphor in political news discourse}
@@ -187,5 +187,43 @@ can log in and contribute annotations. There is also a Python API that is
 exposed for programmatic access to annotations, which is useful for 
 future analysis. The data and metadata are stored in MongoDB, which can be
 exported to CSV or other convenient formats. 
+
+\subsection{The corpus and our data}
+
+Ultimately our data are timeseries of counts of usage of metaphorical violence
+in cable news programming on two shows from each of three cable news networks.
+
+\begin{figure*}
+\begin{center}
+  % \vspace*{-.55in}
+  \hspace*{-.25in}
+  \includegraphics[width=1.25\textwidth]{figures/fig_uses_violent_words-FIG1.pdf}
+\end{center}
+\caption{
+  7-day moving average and daily counts of the figurative uses of the three-most
+  used violent words in figurative constructions. Uses come from a variety of
+  conceptual metaphors which more or less reduce to 
+  \textsc{politics is a physical fight}. The first three dashed 
+  vertical lines are the dates of the presidential debates, 
+  September 26, October 9, and October 19, 2016. The last dashed
+  line is election day, November 8, 2016.
+}
+\label{fig:timeseries}
+\end{figure*}
+
+We want to see if indeed we can identify ``phase shifts'' in figurative 
+violence use. The daily usage of the three most common violent words used in 
+figurative constructions is shwon in Figure \ref{fig:timeseries}. As discussed more thoroughly in the following sections, we fit a mixed model to the data. We
+augment the data with a ``phase'', which is a value of either 1, 2, or 3 if
+the date of the count is in either the first, second, or third grouping of 
+dates. By varying the start and end date of the second phase and fitting a
+model to each start and end date pair, we are able to select the best 
+candidates for the dates where phase transitions occur. The first phase 
+corresponds roughly to the pre-debate phase, the second phase corresponds to
+the debate phase, and the third phase represents post-debate or possibly 
+post-debate and post-election. We will show that the first phase transition
+seems to happen well past the first debate while the second phase transition
+is more fuzzy, but if one date were to be specified, it actually is 
+election day itself, November 8, 2016.
 
 
