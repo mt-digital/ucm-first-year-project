@@ -1,8 +1,8 @@
 first: 
-	pdflatex main.tex
+	pdflatex -shell-escape main.tex
 
 main: first
-	bibtex main && pdflatex main.tex
+	bibtex main && pdflatex -shell-escape main.tex
 
 omain: main
 	open main.pdf
