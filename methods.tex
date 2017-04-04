@@ -1,5 +1,5 @@
 
-First in this section the method for building the corpus is introduced. Then
+First in this section the corpus and the method for building the corpus are introduced. Then
 a new web-based application for collaborative metaphor annotation and coding 
 is introduced.  This tool allows for efficient export, including a data 
 analysis pipeline API for custom Python applications.  
@@ -10,7 +10,7 @@ violence use are discussed.
 \subsection{Corpus}
 \label{subsec:Corpus}
 
-The corpus a set of 607 transcripts from cable news shows aired from
+The corpus is a set of 607 transcripts from cable news shows aired from
 September 1, 2016 to November 30, 2016 (inclusive). The transcripts were from
 six shows from three networks, Fox News, MSNBC, and CNN. The shows were the
 two most watched shows from each network for the month of
@@ -53,7 +53,7 @@ will be in the transcript. The transcripts used here are built from the
 closed captioning recorded and stored in the TVNA. 
 Second, the Internet Archive provides a stable, though hidden, API for 
 programmatic access to the data stored there. Therefore, the software built
-for corpus building does not have to scrape three websites, it only needs to
+for corpus building does not have to scrape multiple websites, it only needs to
 scrape one. Included with calls to the TVNA is a wealth of metadata on each
 show including the original air date, run time, links back to the TVNA, and
 clip download links. These are all used to build rich software for corpus
@@ -188,7 +188,8 @@ in the database as CSV, or directly to a Pandas \texttt{DataFrame} object
 \label{sub:statistical-analysis}
 
 To review, the goal of the statistical analysis is to determine if and when
-phase transitions occur in the timeseries of uses of figurative violence
+phase transitions occur to or from higher or lower frequency of use 
+of figurative violence
 during the campaign. Preliminary analyses of the data revealed that by far
 the most commonly used violent words in figurative violence constructions were
 \textit{attack}, \textit{hit}, and \textit{beat}. In order to have higher 
@@ -200,7 +201,7 @@ must first decide what candidate dates we should use for the first and
 second phase transition. Part of the analysis is to find what the optimal 
 dates are in terms of relative likelihood that the model with two particular
 phase transition dates captures more information than any other candidate
-model, including the null hypothesis, which is no dependence on phase.
+model, including the null hypothesis, or no dependence on phase.
 
 \begin{table}[ht]
     \centering
@@ -283,8 +284,8 @@ information loss in a model. It has no meaning on its own, but it is instead
 used to calculate the likelihood that another candidate model minimizes 
 information loss better than the model with minimum AIC, or 
 AIC$_{\mathrm{min}}$. Comparing model $i$ with AIC larger than 
-the model that has minimum AIC, AIC$_{\mathrm{min}}$, 
-the likelihood that model $i$ actually minimizes information loss is given by
+the model with AIC$_{\mathrm{min}}$ is done by calculating the 
+the relative likelihood, given by
 
 \begin{equation}
     \mathcal{L}_i = \exp{\left(
@@ -293,6 +294,10 @@ the likelihood that model $i$ actually minimizes information loss is given by
       }
   \label{eq:relative-likelihood}
 \end{equation}
+
+\noindent
+so called because it yields the probability that model $i$ is actually the one
+that results in a lower information loss than the model with AIC$_{\mathrm{min}}$.
 
 
 In Section \ref{sec:Results}, Figures \ref{fig:AICs} and \ref{fig:relative-likelihoods}
