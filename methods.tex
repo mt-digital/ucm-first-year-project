@@ -1,21 +1,28 @@
-
-First in this section the corpus and the method for building the corpus are introduced. Then
-a new web-based application for collaborative metaphor annotation and coding 
-is introduced.  This tool allows for efficient export, including a data 
-analysis pipeline API for custom Python applications.  
-The methods for data export and analysis are demonstrated. Finally, the
-statistical methods used for finding the phase transitions in figurative 
-violence use are discussed.
+The major methodological contribution of this paper is that we demonstrated
+a statistical analysis, described below, to determine a best estimate
+for when two transitions occur: from less to more frequent usage of 
+figurative violence, then back from this elevated state of usage to the pre-debate
+level. This method also reveals transitory periods.
+Our observational data was transcripts of cable news programming from six
+cable news shows. This data was obtained by processing closed captioning
+accessed from the Internet Archive's TV News Archive (TVNA). The TV News Archive
+is an excellent, free research tool that constantly 
+records TV news from across the country. Currently over 1,359,000 shows with
+metadata and closed captions are accessibly through their website, 
+\url{https://archive.org/tv/details}. We download each show's closed captions,
+which are then converted to transcripts, 
+which are in turn searched and coded for usage of
+figurative violence. The usages are then counted, which gives us our most raw
+version of quantitative data.
 
 \subsection{Corpus}
 \label{subsec:Corpus}
 
 The corpus is a set of 607 transcripts from cable news shows aired from
 September 1, 2016 to November 30, 2016 (inclusive). The transcripts were from
-six shows from three networks, Fox News, MSNBC, and CNN. The shows were the
-two most watched shows from each network for the month of
-October, 2016 \cite{Katz2016}. The shows and their networks are listed in 
-Table \ref{tab:shows}. 
+six shows from three networks, Fox News, MSNBC, and CNN, listed in  
+Table \ref{tab:shows}. These shows were the two most watched shows from 
+each network for the month of October, 2016 \cite{Katz2016}.  
 
 \vspace{.2in}
 
@@ -42,22 +49,75 @@ Table \ref{tab:shows}.
   \label{tab:shows}
 \end{table}
 
-While the transcripts may be available on each network's website 
-for each of the days in the study range, we don't depend on this.
-Instead, we use the Internet Archive's (\url{http://archive.org}) 
-TV News Archive, or TVNA for short (\url{http://archive.org/tv/details}).
-There are several reasons that the TVNA is prefereable to scraping network
-websites for transcripts.
-First, there is no guarantee that everything said on the show
-will be in the transcript. The transcripts used here are built from the
-closed captioning recorded and stored in the TVNA. 
-Second, the Internet Archive provides a stable, though hidden, API for 
-programmatic access to the data stored there. Therefore, the software built
-for corpus building does not have to scrape multiple websites, it only needs to
-scrape one. Included with calls to the TVNA is a wealth of metadata on each
-show including the original air date, run time, links back to the TVNA, and
-clip download links. These are all used to build rich software for corpus
-building and annotation as demonstrated below.
+
+We accessed the closed captions of these shows from the 
+Internet Archive's (\url{http://archive.org}) 
+TV News Archive (TVNA) (\url{http://archive.org/tv/details}) 
+The TVNA provides a stable, though hidden, application programming interface
+(API) for programmatic access to the data stored there. 
+The TVNA has a wealth of metadata on each show including the original air date, 
+run time, links back to the TVNA, and clip download links. These are all used to 
+build rich software for corpus building and annotation. 
+
+A limitation of the TVNA is that clips and closed captions are only available
+in up to 60-second chunks. 
+Requesting content from a URL that requests more than this amount will result
+in an error. So to build our transcripts, we must make many requests for 
+60-second segments of a show's closed captions. These closed captions were then
+concatenated to create a full show's closed caption transcript. The final 
+transcript of the show was created using PBS's \texttt{pycation} package, which
+converts SRT-formatted closed-captions to a text format where every change in
+speaker is represented by a new paragraph \cite{PBS2016, Matroska2016}. 
+
+Searching for shows, accessing each show's metadata, and downloading the 
+transcipts was done with a new open-source Python package I developed 
+called \textit{iatv} (\url{https://github.com/mtpain/iatv}).
+This encapsulates API calls to resources such as 
+\url{https://archive.org/details/MSNBCW\_20160910\_020000\_The\_Last\_Word\_With\_Lawrence\_ODonnell?output=json}, which contains JSON-formatted metadata for the show, including
+links to files that are available for download. The closed-caption files are
+available for download by making a request from a URL like the following
+\url{https://archive.org/download/MSNBCW\_20160910\_020000\_The\_Last\_Word\_With\_Lawrence\_ODonnell.cc5.srt?t=0/60}.
+The query string, \texttt{t=0/60} requests the first sixty seconds of closed
+captions. These two numbers must be sequentially incremented to take the
+next sixty seconds. If the show is an hour long, this would result in 60 API
+calls to download every closed caption clip for that show. The shows' closed
+captions, the built transcript, and other relevant metadata is stored in a
+MongoDB database, which is further extended with analyst annotations as
+potential metaphors are searched for and metaphors are identified for 
+inclusion in our analysis.
+
+
+\subsection{Metaphor identifcation}
+\label{sub:metaphor-identifcation}
+
+We identify metaphorical violence by first searching for a set of violent words.
+These words were selected as a starting point. Out of the list of words we 
+considered, we present results from constructions using \textit{attack}, \textit{hit},
+and \textit{beat}. 
+Every match is tagged and is added to a MongoDB database, along with other metadata, 
+as a potential usage of metaphorical violence. Every databse entry contains 
+the paragraph containing the the instance of the violent word, the program
+in which it was spoken, the date, and a link back to the show on the Internet
+Archive for further investigation. These potential instances are metaphorical
+violence were displayed in an open-source 
+web application\footnote{\url{https://github.com/mtpain/metacorps}} specially 
+designed for this project. This web application shares the same data model we
+use for organizing the metaphors. 
+
+Paragraphs with a match to one of the violence words or phrases were then
+displayed in the user interface of the web application. 
+Each instance was examined and marked for inclusion if the 
+violence was in fact figurative.
+Other information was also collected, including the underlying conceptual
+metaphor, who or what was the subject and
+object of the figurative violence, the tense, and whether the construction was
+active or passive. Instances of course were included only if the violent word
+was used in a figurative way. However, this could include constructions like
+``the noreaster hit the East Coast on Thursday.'' Therefore, a further condition
+on inclusion was whether the figurative violence was being done by or to someone
+or something involved in politics. This person did not have to be a United States
+citizen. For example, one instance that was included was 
+``sanctions...hit Putin as an individual in his inner circle.'' 
 
 
 \subsection{Statistical Analysis}
@@ -79,41 +139,41 @@ dates are in terms of relative likelihood that the model with two particular
 phase transition dates captures more information than any other candidate
 model, including the null hypothesis, or no dependence on phase.
 
-\begin{table}[ht]
-    \centering
-    \begin{tabular}{|r|cc|}
-        \hline
-        date       &   facet    &  count     \\
-        \hline
-        2016-09-01 &     attack &    0     \\
-        2016-09-02 &     hit    &    1     \\
-        2016-09-03 &     hit    &    2     \\
-        2016-09-04 &     beat   &    0     \\
-        2016-09-05 &     beat   &    1     \\
-        $\vdots$   &  $\vdots$  & $\vdots$ \\
-    \end{tabular}
-    \caption{Example first five rows of data used in statistical analysis to find
-    phase transition before addition of phase}
-    \label{tab:sample-data}
-\end{table}
+% \begin{table}[ht]
+%     \centering
+%     \begin{tabular}{|r|cc|}
+%         \hline
+%         date       &   facet    &  count     \\
+%         \hline
+%         2016-09-01 &     attack &    0     \\
+%         2016-09-02 &     hit    &    1     \\
+%         2016-09-03 &     hit    &    2     \\
+%         2016-09-04 &     beat   &    0     \\
+%         2016-09-05 &     beat   &    1     \\
+%         $\vdots$   &  $\vdots$  & $\vdots$ \\
+%     \end{tabular}
+%     \caption{Example first five rows of data used in statistical analysis to find
+%     phase transition before addition of phase}
+%     \label{tab:sample-data}
+% \end{table}
 
-\begin{table}[ht]
-    \centering
-    \begin{tabular}{|r|ccc|}
-        \hline
-        date       &  phase  &   facet    &  count     \\
-        \hline               
-        2016-09-01 &    1    &     attack &    0     \\
-        2016-09-02 &    1    &     hit    &    1     \\
-        2016-09-03 &    1    &     hit    &    2     \\
-        2016-09-04 &    1    &     beat   &    0     \\
-        2016-09-05 &    1    &     beat   &    1     \\
-        $\vdots$   & $\vdots$&  $\vdots$  & $\vdots$ \\
-    \end{tabular}
-    \caption{Example first five rows of data used in statistical analysis to find
-    phase transition with addition of phase}
-    \label{tab:sample-data-wphase}
-\end{table}
+% \begin{table}[ht]
+%     \centering
+%     \begin{tabular}{|r|ccc|}
+%         \hline
+%         date       &  phase  &   facet    &  count     \\
+%         \hline               
+%         2016-09-01 &    1    &     attack &    0     \\
+%         2016-09-02 &    1    &     hit    &    1     \\
+%         2016-09-03 &    1    &     hit    &    2     \\
+%         2016-09-04 &    1    &     beat   &    0     \\
+%         2016-09-05 &    1    &     beat   &    1     \\
+%         $\vdots$   & $\vdots$&  $\vdots$  & $\vdots$ \\
+%     \end{tabular}
+%     \caption{Example first five rows of data used in statistical analysis to find
+%     phase transition with addition of phase}
+%     \label{tab:sample-data-wphase}
+% \end{table}
 
 
 To model the data we used general linear mixed models, 
