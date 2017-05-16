@@ -1,72 +1,76 @@
-With the statistical and analytic machinery in place, the results are 
-rather straight-forward. However, the results are also rather striking. 
-First, as discussed in Section \ref{sec:Methods}, we computed the mixed model
-given by \texttt{count $\sim$ phase + facet + (1|date)} for 266 different date
-partitions determining which date was assigned to which phase. The first
-partition date ranged between September 26 and October 9, 2016. The
-second partition date was between October 27 and November 14, 2016.
-The phase was 1 if the date was before the first partition date, 2 if the 
-date was on or after the first partition date and before the 
-second partition date, or 3 if the observation date was on or after the second 
-partition date.
+Does metaphorical violence usage increase when debates are ongoing? The data
+will show that yes, usage does increase when looking at daily usage between September and November,
+2016. To build up to that conclusion, we will first look at the performance
+of a number of models with various hypothetical dates when the increase
+began and ended. The daily timeseries of frequency of metaphorical violence
+usage is shown in Figure \ref{fig:timeseries-fit}. Along with the timeseries
+of frequency are the mean frequencies during each of the two time periods of
+interest: the period of normal or base usage, and the period of increased usage,
+in the center straddling the occurrence of the three debates. Recall that the
+dataset under consideration is a daily timeseries of frequencies of meatphorical 
+violence usage.  
 
-
-\begin{figure}
+\begin{figure}[h!]
   \centering
-  % \vspace*{-.55in}
-  \hspace*{-.25in}
-  \includegraphics[width=1.25\textwidth]{figures/AIC_dates-FIG2.pdf}
+  \includegraphics[width=\textwidth]{figures/rel-lik-zoomout.pdf}
+  \caption{Relative likelihood of models with various start
+  and end dates. The y-axis represents the hypothetical start date of the state of
+  elevated metaphorical violence usage. The x-axis represents the hypothetical
+  end date of the elevated state. 
+  The models with highest relative likelihoods are colored darker. Most of the
+  pairs of dates are not likely, which is to be expected.}
+  \label{fig:rel-lik-zoomout}
+\end{figure}
 
-\caption{
-  Akaike information criterion (AIC) for models of \texttt{count $\sim$ phase + facet + (1|date)}
-  for 266 different phase assignments. The phase was 1 if the date was before
-  the first partition date, 2 if the date was on or after
-  the first partition date and before the second partition date, or
-  3 if the observation date was on or after the second partition date.
-}
-\label{fig:AICs}
+To determine
+the exact beginning and ending of the period of increased usage, I compared
+the AIC of the model fit to all the hypothesized start and end dates. We compare
+two model fits by the relative likelihood, obtained by calculating
+the exponential of the halved difference between the minimum AIC and another
+AIC (Equation \ref{eq:rel-lik}).
+There is only a small region of the relative likelihood map where the relative
+likelihood is significantly greater than 0 (Figure \ref{fig:rel-lik-zoomout}).
+Zooming in on this region, we see that the model that captures the most information
+is the one where the elevated period begins September 25 and ends October 26
+(Figure \ref{fig:rel-lik-zoomin}).
+The start date of the elevated state (the y-axis of Figure \ref{fig:rel-lik-zoomin})
+is well-defined. There is no other date that results in a likely model. 
+However the end date is less certain. 
+The end dates are the x-axis of Figure \ref{fig:rel-lik-zoomin}.
+Plus or minus one day results in a model that is .71 and .79 times as likely
+to capture more information. There is a window of six days where an alternative
+ending date of the elevated usage results in highly likely models. 
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{figures/rel-lik-zoomin.pdf}
+  \caption{Zoomed-in detail of the most likely start and end dates of increased
+  metaphorical violence usage are most likely. The y-axis is the hypothetical
+  start date of increased usage, and on the x-axis are hypothetical end dates 
+  of metaphorical violence usage. The most likely start and end date are
+  September 25 and October 26. The start date is definitively identified, while
+  the end date is less certain.}
+  \label{fig:rel-lik-zoomin}
 \end{figure}
 
 
+
+With the best start and end date of the elevated state of usage established,
+we may now calculate the resulting means for each state. Normal usage of 
+metaphorical violence is about 1 use per episode per day. The elevated usage 
+is 2.7 uses per episode per day. The relative likelihood of the null model,
+where there is only one state of usage, is much less than 0.05. For those
+who prefer the frequentist approach, the p-value of the linear fit is
+nearly zero. 
+
 \begin{figure}
   \centering
-  % \vspace*{-.55in}
-  \hspace*{-.25in}
-  \includegraphics[width=1.25\textwidth]{figures/rel_likelihood_dates-FIG2.pdf}
-
-\caption{
-  Relative likelihood of models with identical formula, but different dates
-  used to partition the data into three ``phases''. The phase 
-  was 1 if the date was before
-  the first partition date, 2 if the date was on or after
-  the first partition date and before the second partition date, or
-  3 if the observation date was on or after the second partition date.
-}
-\label{fig:relative-likelihoods}
+  \includegraphics[width=\textwidth]{figures/timeseries-fit.pdf}
+  \caption{Daily timeseries of frequency of figurative violence usage. The
+  mean frequency is overlaid. The normal frequency is 1.0, while the mean
+  frequency in the elevated region is 2.7. As revealed by the
+  relative likelihood analysis, the start date of the elevated state is 
+  September 25, and the end date of the elevated state is October 26.}
+  \label{fig:timeseries-fit}
 \end{figure}
 
-Recall that a model with relatively higher AIC means more information was lost by
-that model. So, a lower relative AIC is better. However, miniscule differences
-in AIC cannot be considered conclusive. To select the model that best fits the
-data, which in turn selects the dates that best correspond to the locations
-of the phase transitions, we first compute the AIC of all candidate models, 
-The results of this calculation for all candidate models that include phase
-are shown in Figure \ref{fig:AICs}. To determine the probability that 
-another model will not minimize information loss better,
-the model with the minimum AIC is compared to all $N-1$ other models using
-the relative likelihood, $\mathcal{L}_i$, where $i = 1, \ldots, N;~i \neq i_{min}$,
-where $i_{min}$ is the model index with minimum AIC. $\mathcal{L}_i$ was defined
-in Equation \ref{eq:relative-likelihood}. 
-
-The pair of partition dates with the smallest AIC was October 10 and
-November 8, with an AIC of 949. We then calculated $\mathcal{L}_i$ for all 
-$N-1$ other models, 
-with the results shown in Figure \ref{fig:relative-likelihoods}. At first,
-we might be discouraged by the results. While the we do find a minimum
-AIC that is significantly less than the null model 
-($\mathrm{AIC}_{\mathrm{null}} = 955.63;~\mathcal{L}_{\mathrm{null}} = .046$),
-there are many candidates with high relative likelihoods. 
-There is a explanation that does not imply that our method for
-identifying the location of a phase transition is not working. What if,
-instead, our procedure is identifying an area of mixed phase, or a transient
-phase to use more of a dynamical systems term. 

@@ -1,241 +1,241 @@
-The major methodological contribution of this paper is that we demonstrated
-a statistical analysis, described below, to determine a best estimate
-for when two transitions occur: from less to more frequent usage of 
-figurative violence, then back from this elevated state of usage to the pre-debate
-level. This method also reveals transitory periods.
-Our observational data was transcripts of cable news programming from six
-cable news shows. This data was obtained by processing closed captioning
-accessed from the Internet Archive's TV News Archive (TVNA). The TV News Archive
-is an excellent, free research tool that constantly 
-records TV news from across the country. Currently over 1,359,000 shows with
-metadata and closed captions are accessibly through their website, 
-\url{https://archive.org/tv/details}. We download each show's closed captions,
-which are then converted to transcripts, 
-which are in turn searched and coded for usage of
-figurative violence. The usages are then counted, which gives us our most raw
-version of quantitative data.
+When work on this project began, I was faced with two problems: one was how to
+acquire and organize transcripts from a number of cable news show episodes. The second was 
+how to identify and annotate instances of metaphor in those episodes. The Internet
+Archive's TV News Archive (TVNA)\footnote{\url{http://archive.org/details/tv}} 
+provides free access to millions of episodes of cable news programming. While 
+the data itself is immense and well-organized, the user interface is limiting.
+Partly, this is intentional because of copyright issues: users are only allowed
+to download about 120 seconds of video or closed captioning at a time. Shows
+are displayed in sixty-second clips with closed captions. It is not possible to
+directly copy and paste even the closed captions beneath each clip. In response
+to this challenge, I developed a Python application programming interface (API)
+to perform a number of tasks for episode transcript ingestion and management.
+The \textit{iatv} software package\footnote{\url{https://github.com/mtpain/iatv}}, 
+as I've called it, allows one to 
+search for and download full-length closed captions from any episode stored in
+the TVNA. Once data is acquired, it is stored in a MongoDB database following a
+specially-designed data model for annotations. The second problem of 
+identifying and annotating a large number of instances of metaphor was solved
+by way of a web application that used the aforementioned data model as a foundation.
+With the web application and supporting Python API, one can set up new projects,
+which are sets of potential metaphorical instances, edit them, then save updates, which
+writes changes to the database. These coded instances of metaphor are then 
+read out and analyzed by re-usable scripts written in Python and R.
+
+An important contribution to the field of the study of meatphor in discourse
+presented here is the web application and framework I call \textit{Metacorps}\footnote{\url{https://github.com/mtpain/metacorps}}.
+Metacorps provides an intuitive data model, an application programming interface
+(API) for interacting with the data model directly, and a web application that
+uses the data model to store annotations of the corpus. Already this web application
+has allowed us to move beyond wide-format, shared spreadsheets of potential
+instances of metaphor to a social, collaborative online space. Users log in
+to the web application, navigate to potential instances of metaphor, and 
+determine whether or not the use of a violent word or phrase was in fact
+metaphorical. Other instance metadata is added, including the agent of metaphorical violence,
+the object of metaphorical violence, the underlying conceptual metaphor, and 
+the tense. Metacorps also provides an API for exporting the results to a 
+Pandas \texttt{DataFrame} for visualization and analysis. 
 
 \subsection{Corpus}
-\label{subsec:Corpus}
+\label{sub:Corpus}
 
-The corpus is a set of 607 transcripts from cable news shows aired from
-September 1, 2016 to November 30, 2016 (inclusive). The transcripts were from
-six shows from three networks, Fox News, MSNBC, and CNN, listed in  
-Table \ref{tab:shows}. These shows were the two most watched shows from 
-each network for the month of October, 2016 \cite{Katz2016}.  
+Using \textit{iatv}, I built a corpus consisting of 
+607 episode transcripts of cable news shows aired from September 1
+to November 30, 2016. The episodes were from the two most-watched programs in October, 2016, from
+the three cable news networks MSNBC, CNN, and Fox News. From MSNBC, the shows
+were \textit{The Rachel Maddow Show} and \textit{The Last Word with Larry O'Donnell};
+from CNN the shows were \textit{Anderson Cooper 360} and \textit{Erin Burnett OutFront};
+and from Fox News the shows were \textit{The O'Reilly Factor} and 
+\textit{The Kelly File} \cite{Katz2016}.  The transcripts were built from 
+closed captions recorded by the TVNA. \textit{iatv} provides functionality to build
+transcripts from closed captions using PBS's open source \textit{pycaption} 
+software package for the Python programming language \cite{PBS2016}. 
+After an episode's metadata and closed 
+captions have been captured, these are all stored to disk along with a JSON
+file of episode metadata. This blob of data and metadata is then ingested 
+to a central database for access by the annotation and analysis software.
 
-\vspace{.2in}
+The TVNA provides video, closed captions, and metadata for 
+millions of episodes of cable news shows. New episodes are added at most twenty-four
+hours after they are shown. Included in the metadata is the 
+unique identifier for the episode in the TVNA, the date the show aired, links to video downloads, 
+keywords identified by the TVNA systems, and more. Most importantly for us 
+is the closed captioning, the unique TVNA identifier, and the air date, since
+time-resolved data is needed to investigate the dynamics of metaphorical
+violence usage. While it is possible to use a web browser to access some of this
+data, it is tedius to download an entire transcript from a cable news 
+episode. The best one could do through a browser is enter a series of URLs that
+have the start time and end time manually entered with a maximum elapsed time
+of 120 seconds\footnote{for example, \url{https://archive.org/download/FOXNEWSW_20160917_000000_The_OReilly_Factor/FOXNEWSW_20160917_000000_The_OReilly_Factor.cc5.srt?start=0&end=120}}.
 
-\begin{table}[!htb]
-  \centering
-    \begin{tabular}{|c|c|}
-      \hline
-        Network & Programs \\
-      \hline
-      \multirow{2}{*}{Fox News} 
-        & The O'Reilly Factor \\
-        & The Kelly File \\
-      \hline
-      \multirow{2}{*}{MSNBC}
-        & The Rachel Maddow Show \\
-        & The Last Word with Lawrence O'Donnell \\
-      \hline
-      \multirow{2}{*}{CNN}
-        & Anderson Cooper 360 \\
-        & Erin Burnett OutFront \\
-      \hline
-    \end{tabular}
-  \caption{List of shows used in corpus and their networks.}
-  \label{tab:shows}
-\end{table}
+Even if one went through the tedium of downloading thirty 120-second closed
+caption files for every hour-long episode, the closed caption files are not
+too useful on their own. Much of the metadata one needs is in 
+the episode identifier, but this is not the ideal way to manage data. Instead,
+the closed captions are converted to transcripts, then the transcript and 
+relevant metadata are stored to a MongoDB databse. Not only is this better
+practice; this database will serve as the storage engine for the web app
+used to annotate the corpus.
 
+\subsection{Analysis}
+\label{sub:Analysis}
 
-We accessed the closed captions of these shows from the 
-Internet Archive's (\url{http://archive.org}) 
-TV News Archive (TVNA) (\url{http://archive.org/tv/details}) 
-The TVNA provides a stable, though hidden, application programming interface
-(API) for programmatic access to the data stored there. 
-The TVNA has a wealth of metadata on each show including the original air date, 
-run time, links back to the TVNA, and clip download links. These are all used to 
-build rich software for corpus building and annotation. 
+To perform the analysis, I first determined a useful, extensible data model to
+accommodate the raw caption data, the unannotated transcripts, episode metadata,
+and coded annotations. The annotations are provided by myself and research assistants
+through a web application, described in more detail below. We will call the
+package of transcript and IATV episode metadata a \textit{document} to match the 
+MongoDB terminology. The top-level data structure for analysis is the \textit{Project},
+which encapsulates all documents that comprise the 
+Documents are sorted into \textit{facets}, which in this case are labelled by the 
+violent words or phrases which may or may not be used metaphorically. Each 
+facet has a list of \textit{instances} of use, which again may or may not be
+used metaphorically. 
 
-A limitation of the TVNA is that clips and closed captions are only available
-in up to 60-second chunks. 
-Requesting content from a URL that requests more than this amount will result
-in an error. So to build our transcripts, we must make many requests for 
-60-second segments of a show's closed captions. These closed captions were then
-concatenated to create a full show's closed caption transcript. The final 
-transcript of the show was created using PBS's \texttt{pycation} package, which
-converts SRT-formatted closed-captions to a text format where every change in
-speaker is represented by a new paragraph \cite{PBS2016, Matroska2016}. 
+In Metacorps, the user first selects the project they want to work on. The
+visibility of projects can be adjusted so only certain users see certain projects,
+enabling Metacorps to be used by multiple research groups. Next, the user
+is shown a list of facets available for the particular project. In this work,
+the facets we consider are \textit{attack}, \textit{hit}, and \textit{beat}. 
+So the task of an annotater in this project is to determine whether or not
+attack, hit, and beat were used metaphorically. Of 1663 instances of each word
+in the corpus, 614 out of 1663 were metaphorical instances. As far as was 
+possible, we followed the metaphor identification procedure outlined by 
+\citeA{Pragglejaz2007}. However, because of the volume of text, we did not
+read the entire corpus. As time goes on, a goal of Metacorps is to formally
+incorporate the Pragglejaz group's metaphor identification procedure into the
+user interface of the Metacorps web application. Instances were included in our
+analysis first if they were indeed metaphorical uses of these violent words.
+The next criterion is that the usage had to be about politics and the object
+of violence had to be a politician or political organziation. The politicians
+or organizations did not have to be from the United States. 
 
-Searching for shows, accessing each show's metadata, and downloading the 
-transcipts was done with a new open-source Python package I developed 
-called \textit{iatv} (\url{https://github.com/mtpain/iatv}).
-This encapsulates API calls to resources such as 
-\url{https://archive.org/details/MSNBCW\_20160910\_020000\_The\_Last\_Word\_With\_Lawrence\_ODonnell?output=json}, which contains JSON-formatted metadata for the show, including
-links to files that are available for download. The closed-caption files are
-available for download by making a request from a URL like the following
-\url{https://archive.org/download/MSNBCW\_20160910\_020000\_The\_Last\_Word\_With\_Lawrence\_ODonnell.cc5.srt?t=0/60}.
-The query string, \texttt{t=0/60} requests the first sixty seconds of closed
-captions. These two numbers must be sequentially incremented to take the
-next sixty seconds. If the show is an hour long, this would result in 60 API
-calls to download every closed caption clip for that show. The shows' closed
-captions, the built transcript, and other relevant metadata is stored in a
-MongoDB database, which is further extended with analyst annotations as
-potential metaphors are searched for and metaphors are identified for 
-inclusion in our analysis.
+Here are some examples to further explain what was included as metaphorical
+violence in the study and what was not. First, an obvious example of two 
+utternaces from a single episode, \textit{The Last Word with Lawrence O'Donnell},
+shown on MSNBC October 10, 2016\footnote{View at \url{https://goo.gl/V3QDlS}}:
 
+\begin{quotation}
+  \noindent
+  \textbf{1.} It was 2004, so it was just as the insurgency was really getting boiling, and uh,
+    we were getting used to mortar \textbf{attacks} and rocket attacks, 
+    but we hadn't yet, I don't believe had any kind of car bombing at our base. \\
+  \textbf{2.} Donald Trump spent his time last night \textbf{attacking} me when he should have been
+    apologizing.
+\end{quotation}
 
-\subsection{Metaphor identifcation}
-\label{sub:metaphor-identifcation}
+\noindent
+In \textbf{(1)}, a member of the military is beginning to describe a car bomb 
+attack on his base. Clearly \textit{attack} is not being used metaphorically,
+so this utterance is not counted as an instance of metaphorical violence. 
+Hillary Clinton herself is the speaker in \textbf{(2)}.
+This is metaphorical violence and it is included. Clinton said this during a
+campaign speech, which was shown during the episode. While this same speech
+may show up on multiple networks, it is counted once the first time it
+occurred in any episode. This is done to get an understanding of how many times
+metaphorical violence is used on any episode, regardless of the speaker. 
 
-We identify metaphorical violence by first searching for a set of violent words.
-These words were selected as a starting point. Out of the list of words we 
-considered, we present results from constructions using \textit{attack}, \textit{hit},
-and \textit{beat}. 
-Every match is tagged and is added to a MongoDB database, along with other metadata, 
-as a potential usage of metaphorical violence. Every databse entry contains 
-the paragraph containing the the instance of the violent word, the program
-in which it was spoken, the date, and a link back to the show on the Internet
-Archive for further investigation. These potential instances are metaphorical
-violence were displayed in an open-source 
-web application\footnote{\url{https://github.com/mtpain/metacorps}} specially 
-designed for this project. This web application shares the same data model we
-use for organizing the metaphors. 
+Next, consider
+the following quotations containing the word \textit{hit} from 
+\textit{The Kelly File} on October 13, 2016\footnote{View at \url{https://goo.gl/fWDWp4}}
 
-Paragraphs with a match to one of the violence words or phrases were then
-displayed in the user interface of the web application. 
-Each instance was examined and marked for inclusion if the 
-violence was in fact figurative.
-Other information was also collected, including the underlying conceptual
-metaphor, who or what was the subject and
-object of the figurative violence, the tense, and whether the construction was
-active or passive. Instances of course were included only if the violent word
-was used in a figurative way. However, this could include constructions like
-``the noreaster hit the East Coast on Thursday.'' Therefore, a further condition
-on inclusion was whether the figurative violence was being done by or to someone
-or something involved in politics. This person did not have to be a United States
-citizen. For example, one instance that was included was 
-``sanctions...hit Putin as an individual in his inner circle.'' 
+\begin{quotation}
+  \noindent
+  \textbf{3.} How low can they go---have we \textbf{hit} rock bottom or are we
+    going even deeper? \\
+  \textbf{4.} Every presidential campaign and candidate have to deal with
+  things that are thrown at them. The question is not what they're \textbf{hit} with. The
+  question is how they respond.
+\end{quotation}
 
+\noindent
+The first is not included in our analysis. While it is metaphorical, 
+there is no violence done by one
+politician or political organization against another. Instead Megyn Kelly is talking about the
+state of the debates and general tenor of the campaigns. The second quote is
+included as an instance of metaphorical violence. Here, contributor
+Monica Crowley does not identify a particular candidate, but candidates
+in general who are \textit{hit} by all the ``things that are thrown at them'' over
+the course of a political campaign. 
 
-\subsection{Statistical Analysis}
-\label{sub:statistical-analysis}
+Finally, another pair of examples, the first counted as metaphorical violence and the second not, 
+from the CNN program \textit{Erin Burnett OutFront} on October 21, 
+2016\footnote{View at \url{https://goo.gl/b7nj62}}
 
-To review, the goal of the statistical analysis is to determine if and when
-phase transitions occur to or from higher or lower frequency of use 
-of figurative violence
-during the campaign. Preliminary analyses of the data revealed that by far
-the most commonly used violent words in figurative violence constructions were
-\textit{attack}, \textit{hit}, and \textit{beat}. In order to have higher 
-counts and increase statistical power, usages were summed across all programs,
-so each day we counted the total number of uses of each one of those words.
-There is a sampling of this data table in Table \ref{tab:sample-data}. In 
-order to assign phases one, two, and three to each row of this table, we
-must first decide what candidate dates we should use for the first and
-second phase transition. Part of the analysis is to find what the optimal 
-dates are in terms of relative likelihood that the model with two particular
-phase transition dates captures more information than any other candidate
-model, including the null hypothesis, or no dependence on phase.
+\begin{quotation}
+  \noindent
+  \textbf{5.} Believe me, I'm right, but with your help, we're going to \textbf{beat} 
+    the system and we're going to un-rig the system.\\
+  \textbf{6.} Black people have been \textbf{beaten} at your rallies.
+\end{quotation}
 
-% \begin{table}[ht]
-%     \centering
-%     \begin{tabular}{|r|cc|}
-%         \hline
-%         date       &   facet    &  count     \\
-%         \hline
-%         2016-09-01 &     attack &    0     \\
-%         2016-09-02 &     hit    &    1     \\
-%         2016-09-03 &     hit    &    2     \\
-%         2016-09-04 &     beat   &    0     \\
-%         2016-09-05 &     beat   &    1     \\
-%         $\vdots$   &  $\vdots$  & $\vdots$ \\
-%     \end{tabular}
-%     \caption{Example first five rows of data used in statistical analysis to find
-%     phase transition before addition of phase}
-%     \label{tab:sample-data}
-% \end{table}
+\noindent
+The first, \textbf{(5)} was spoken by Donald Trump at a campaign rally in 
+North Carolina. The ``we'' is himself and his supporters, with ``the system''
+being metaphorically beaten. Van Jones, a CNN commentator, spoke \textbf{(6)}.
+There is nothing metaphorical in \textbf{(6)}, just his claim that black people have been
+targeted and beaten at Donald Trump's rallies. While \textbf{(6)} is obviously
+not metaphorical, one might doubt that \textbf{(5)} is a metaphor.
+We use \textbf{beat} so often in cases like this, describing the defeat
+of one competitor by another, that it doesn't feel like metaphor. But it's clear
+that it is metaphorical violence by changing the object: what if instead the
+utterance was ``with your help, we're going to beat black people''? This would
+clearly be a call to violence. So, \textbf{(5)} is included as an instance of
+metaphorical violence.
 
-% \begin{table}[ht]
-%     \centering
-%     \begin{tabular}{|r|ccc|}
-%         \hline
-%         date       &  phase  &   facet    &  count     \\
-%         \hline               
-%         2016-09-01 &    1    &     attack &    0     \\
-%         2016-09-02 &    1    &     hit    &    1     \\
-%         2016-09-03 &    1    &     hit    &    2     \\
-%         2016-09-04 &    1    &     beat   &    0     \\
-%         2016-09-05 &    1    &     beat   &    1     \\
-%         $\vdots$   & $\vdots$&  $\vdots$  & $\vdots$ \\
-%     \end{tabular}
-%     \caption{Example first five rows of data used in statistical analysis to find
-%     phase transition with addition of phase}
-%     \label{tab:sample-data-wphase}
-% \end{table}
+Once all the instances of metaphorical violence are counted and annotated, we
+obtain a daily timeseries of counts of metaphorical violence usage. Because 
+the number of episodes vary from day to day, we must divide the counts of
+metaphorical violence on a given day by the number of episodes shown each day.
+Re-runs are removed from the analysis. If there were no episodes shown on
+a given day, that day is not included in the statistical tests. 
 
-
-To model the data we used general linear mixed models, 
-with \texttt{phase} and \texttt{facet} 
-being fixed effects. Because the data is count data, Poisson regression was
-used. Because there could be fluctuations on any given day,
-\texttt{date} is modeled as a random effect. Including random effects are
-preferred to simply averaging as this results in less information loss
-\cite{Winter2013, Burnham2011, Clark1973}. Model generation was done with
-the \texttt{lme4} R package \cite{Bates2015} called seamlessly 
-from Python using the \texttt{rpy2} package \cite{Gautier2017}. To summarize,
-the two basic models tested are given in Table \ref{tab:models}. The 
-theoretical and methodological innovation presented here is in building 
-a series of 266 models with 14 candidate dates for the first phase transition
-and 19 candidate dates for the second phase transition\footnote{More were
-tested in preliminary stages; these correspond to a more specific region of
-interest}. In this way, we are actually comparing 267 models: one is the null
-hypothesis, that there is no improvement in model performance if we do not
-include phase in the model. The 266 other models include phase in the model,
-but the dates where we assign each phase are shifted. We performed preliminary
-analysis to determine that it was significant to add \texttt{facet} as a 
-fixed effect.
-
-\begin{table}[ht]
-    \centering
-    \begin{tabular}{|r|c|}
-        \hline
-        description & formula \\
-        \hline
-        null model, facet only & \texttt{count $\sim$ facet + (1|date)} \\
-        includes phase       & \texttt{count $\sim$ phase + facet + (1|date)} \\
-        \hline
-    \end{tabular}
-    \caption{Two basic models considered for modeling figurative violence usage}
-    \label{tab:models}
-\end{table}
-
-While one could use the chi-square test and significance values to evaluate
-the improvement from one model to another, this becomes unwieldy and 
-questionable when comparing 267 models. A more modern approach is to compare
-the Akaike information criterion (AIC) of the models 
-\cite{Akaike1974, Burnham2004, Burnham2011}. The AIC is a measure of 
-information loss in a model. It has no meaning on its own, but it is instead
-used to calculate the likelihood that another candidate model minimizes 
-information loss better than the model with minimum AIC, or 
-AIC$_{\mathrm{min}}$. Comparing model $i$ with AIC larger than 
-the model with AIC$_{\mathrm{min}}$ is done by calculating the 
-the relative likelihood, given by
+To determine whether or not metaphorical violence increased due to the debates,
+I coded dates either ``normal'' or ``elevated,'' as in normal
+levels of metaphorical violence usage or elevated levels of metaphorical violence
+usage. The level of usage is just the mean frequency over the days included
+in each classification. How should such a classification be performed? To 
+make sure arbitrary classification of dates into the two categories did not
+affect our final determination about metaphorical violence use around the 
+debates, I fit over 2000 models, each with a different combination of hypothetical
+start and end date for the elevated condition. Then, I used the Akaike information
+criterion to compare the fits to all hypothetical start/end date pairs. Finally,
+the best model from all possible start and end dates was compared to the null
+model. This multi-model comparison was done by calculating the AIC for each
+hypothetical start and end date, finding the minimum AIC, then comparing other
+candidate start/end date models' AIC using the \textit{relative likelihood}. 
+The relative likelihood is the probability that an alternative model
+will actually minimize information loss better than the model with the minimum
+AIC \cite{Burnham2011}. The relative likelihood of the $i^{\mathrm{th}}$ model is given by
 
 \begin{equation}
-    \mathcal{L}_i = \exp{\left(
-      \frac{\mathrm{AIC}_{\mathrm{min}} - \mathrm{AIC}_{i}}{2} 
-      \right)
-      }
-  \label{eq:relative-likelihood}
+  \mathcal{L}_i = \exp\left(\frac{\mathrm{AIC_{min}} - \mathrm{AIC}_i}{2} \right)
+  \label{eq:rel-lik}
 \end{equation}
 
 \noindent
-so called because it yields the probability that model $i$ is actually the one
-that results in a lower information loss than the model with AIC$_{\mathrm{min}}$.
+The AIC on its own has no meaning---the AIC has meaning only relative to the AIC of
+other model fits. The AIC allows us to establish the relative likelihood of
+the $i^{\mathrm{th}}$ model to the best fit model with $\mathrm{AIC_{min}}$, 
+written $\mathcal{L}_i$ (Equation \ref{eq:rel-lik}). The AIC is a measure of
+information captured by a given model. $\mathcal{L}_i$ is the probability that 
+model $i$ captures more information about the data than the model with $\mathrm{AIC_{min}}$.
 
-
-In Section \ref{sec:Results}, Figures \ref{fig:AICs} and \ref{fig:relative-likelihoods}
-show graphically the calculations of the AIC for all candidate phase
-models and the relative likelihood of each candidate phase model, respectively.
+So, to review, by annotating transcripts from the Internet Archive's
+TV News Archive, we are able to build a daily timeseries of the frequency of
+metaphorical violence usage. Frequency here is the count of instances of phrases
+employing metaphorical violence on a given day, divided by the number of
+episodes the six programs aired on that day. I hypothesize that there is some
+combination of start and end date to an elevated state of frequency of metaphorical
+violence that begins sometime on or before October 15, 2016 and ends sometime on or after 
+October 16, 2016. A two-factor linear model is fit to each combination of 
+start and end date, where the two factors are ``normal,'' as in normal levels
+of metaphorical violence, and ``elevated,'' as in elevated usage of
+metaphorical violence. By comparing the relative likelihood of 
+model fits produced for all combinations of start and end date, I pinpoint
+the start and end date that produce the best-performing model, along with
+likelihoods that alternative start and end dates would outperform the model
+with the lowest AIC. This best combination of start and end dates are then 
+compared with the null model to confirm the presence of a 
+significant increase in the frequency of metaphorical violence usage around the
+debates, compared with the rest of September - November 2016.
